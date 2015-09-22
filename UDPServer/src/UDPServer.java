@@ -32,22 +32,18 @@ public class UDPServer {
             int y = senderObject.getY();
             int x = senderObject.getX();
             int type = senderObject.getType();
-            System.out.println(" X : " +
-                    "" + x + " Y : " +y);
-//            if (x == 0 && y== 0){
-//                count++;
-//            }
-//            if ( count > 300 ){
-//                robot.mouseMov e(middleOfScreenX, middleOfScreenY);
-//                count = 0;
-//            }
+            
+            //Get the current pointer location.
             Point mousePointer = MouseInfo.getPointerInfo().getLocation();
+            
+            //Check if the type is mouse click.
             if (type == 2){
                 robot.mousePress(InputEvent.BUTTON1_MASK);
                 robot.mouseRelease(InputEvent.BUTTON1_MASK);
             }
+            // otherwise move the mouse pointer by subtracting to current 
+            // coordinates. Subtraction, because of the flipped right and left.
             else {
-
                 int curX = mousePointer.x - x;
                 int curY = mousePointer.y - y;
                 robot.mouseMove(curX, curY);

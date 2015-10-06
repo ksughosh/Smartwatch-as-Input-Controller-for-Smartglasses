@@ -8,10 +8,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.TimerTask;
 
 /**
  * Created by sughoshkumar on 26/08/15.
@@ -40,6 +38,7 @@ public class UDPClient extends AsyncTask<Void, Void, Void> {
     public void setIpAddressAndPort(String ip, int p) throws UnknownHostException {
         ipAddress = InetAddress.getByName(ip);
         port = p;
+        dataToSend = new byte[94];
         ERROR_FLAG = false;
     }
 
@@ -54,6 +53,7 @@ public class UDPClient extends AsyncTask<Void, Void, Void> {
             DatagramPacket packetToSend = new DatagramPacket(dataToSend, dataToSend.length,
                     ipAddress, port);
             udpSocket.send(packetToSend);
+            System.out.println("@UDP Client send sucessfuly");
             udpSocket.close();
         } catch (SocketException e) {
             e.printStackTrace();

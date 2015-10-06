@@ -2,11 +2,12 @@ package com.zeiss.sughoshkumar.watchmouse;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.zeiss.sughoshkumar.senderobject.SenderObject;
+
+import java.io.IOException;
 import java.net.UnknownHostException;
 
 public class PhoneMainActivity extends Activity {
@@ -22,12 +23,15 @@ public class PhoneMainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 try {
+                    SenderObject object = new SenderObject();
                     client = new UDPClient(PhoneMainActivity.this);
-                    client.setIpAddressAndPort("172.16.1.192", 8083);
-                    client.setDataToSend(null);
+                    client.setIpAddressAndPort("172.16.10.49", 8085);
+                    client.setDataToSend(SenderObject.toBytes(object));
                     client.execute();
                 }
                 catch (UnknownHostException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }

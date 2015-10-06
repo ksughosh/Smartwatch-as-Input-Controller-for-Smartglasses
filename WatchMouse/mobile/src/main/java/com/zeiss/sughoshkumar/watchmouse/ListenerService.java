@@ -2,8 +2,7 @@ package com.zeiss.sughoshkumar.watchmouse;
 
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
-
-import org.json.JSONObject;
+import com.zeiss.sughoshkumar.senderobject.SenderObject;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -15,21 +14,21 @@ public class ListenerService extends WearableListenerService {
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         String path = messageEvent.getPath();
+        System.out.println(" Message. Path : " + path + " received");
         byte[] data = messageEvent.getData();
         SenderObject object = null;
         try {
              object = SenderObject.parseFrom(data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        int x = object.x;
-        int y = object.y;
-        int type = object.type;
-        System.out.println("x : " + x + " y : " + y + "type : " + type);
+        float x = object.getX();
+        float y = object.getY();
+        int type = object.getType();
+        int modality = object.getModality();
+        System.out.println("x : " + x + " y : " + y + "type : " + type + "modality " + object.getModality(modality));
         try {
-            UDPClient client = new UDPClient(ListenerService.this, "172.16.1.192", 8083, data);
+            UDPClient client = new UDPClient(ListenerService.this, "172.16.10.49", 8085, data);
             client.execute();
         } catch (UnknownHostException e) {
             e.printStackTrace();

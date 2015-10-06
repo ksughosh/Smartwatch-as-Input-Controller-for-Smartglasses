@@ -8,21 +8,20 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
+import com.zeiss.sughoshkumar.senderobject.SenderObject;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by sughoshkumar on 26/08/15.
  */
 public class TouchMouse implements View.OnTouchListener {
 
-    private int initX, initY, sendX, sendY;
-    private static final int WATCH_RESOLUTION = 280;
-    private static int WIDTH_RESOLUTION = 100;
-    private static int HEIGHT_RESOLUTION = 100;
-    private static final int CONNECTION_TIMEOUT_MS = 0;
+    private float initX, initY, sendX, sendY;
+    private static final int WATCH_RESOLUTION = 320;
+//    private static int WIDTH_RESOLUTION = 100;
+//    private static int HEIGHT_RESOLUTION = 100;
     private static final int SCROLL_THRESHOLD = 50;
     private static String nodeId;
     GoogleApiClient client;
@@ -83,21 +82,20 @@ public class TouchMouse implements View.OnTouchListener {
                 }
             }).start();
         }
-        System.out.println("Sent to DataLayer");
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
        switch (event.getAction()){
            case MotionEvent.ACTION_DOWN:
-               initX = (int)(event.getX());
-               initY = (int)(event.getY());
+               initX = event.getX();
+               initY = event.getY();
                mDeBounce = event.getEventTime();
                return true;
 
            case MotionEvent.ACTION_MOVE:
-               sendX = initX - (int) (event.getX());
-               sendY = initY - (int) (event.getY());
+               sendX = initX - event.getX();
+               sendY = initY - event.getY();
                if ( sendX > SCROLL_THRESHOLD || sendY > SCROLL_THRESHOLD){
                    mIsScrolling = true;
                }
@@ -106,8 +104,8 @@ public class TouchMouse implements View.OnTouchListener {
                } catch (IOException e) {
                    e.printStackTrace();
                }
-               initX = (int) (event.getX());
-               initY = (int) (event.getY());
+               initX = event.getX();
+               initY = event.getY();
                return true;
            case MotionEvent.ACTION_UP:
                System.out.println("difference " + (event.getEventTime() - mDeBounce) + " isScrolling " + mIsScrolling + " pointer " + event.getPointerCount());
@@ -123,6 +121,11 @@ public class TouchMouse implements View.OnTouchListener {
                    initX = 0;
                    return true;
                }
+               try {
+                   onZeroingPosition();
+               } catch (IOException e) {
+                   e.printStackTrace();
+               }
                mIsScrolling = false;
                sendX = 0;
                sendY = 0;
@@ -135,21 +138,26 @@ public class TouchMouse implements View.OnTouchListener {
        }
     }
 
+    private void onZeroingPosition() throws IOException {
+        SenderObject senderObject = new SenderObject(0, 0, 1, SenderObject.TOUCH_MODALITY);
+        sendToast("STOP", SenderObject.toBytes(senderObject));
+    }
+
     private void onSingleTap() throws IOException {
-        SenderObject senderObject = new SenderObject(sendX, sendY, 2);
+        SenderObject senderObject = new SenderObject(sendY, sendX * -1, 2, SenderObject.TOUCH_MODALITY);
         sendToast("XY", SenderObject.toBytes(senderObject));
     }
 
     private void sendCurrentPosition() throws IOException {
-        SenderObject senderObject = new SenderObject(sendX, sendY,1);
+        SenderObject senderObject = new SenderObject(sendY, sendX * -1, 1, SenderObject.TOUCH_MODALITY);
         sendToast("XY", SenderObject.toBytes(senderObject));
     }
 
-    private int calibrateValueX(float x){
-        return (int)((WIDTH_RESOLUTION/WATCH_RESOLUTION) * x);
-    }
-
-    private int calibrateValueY(float y){
-        return (int) ((HEIGHT_RESOLUTION/WATCH_RESOLUTION) * y);
-    }
+//    private float calibrateValueX(float x){
+//        return (WIDTH_RESOLUTION/WATCH_RESOLUTION) * Y;
+//    }
+//
+//    private float calibrateValueY(float y){
+//        return (HEIGHT_RESOLUTION/WATCH_RESOLUTION) * y;
+//    }
 }

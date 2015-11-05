@@ -8,5 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="org.json:com.springsource.org.json:1.0.0" level="project" />
+    <orderEntry type="library" name="SenderObject" level="project" />
+    <orderEntry type="library" name="SenderObject (2)" level="project" />
   </component>
 </module>

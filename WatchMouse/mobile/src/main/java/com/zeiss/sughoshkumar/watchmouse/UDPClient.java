@@ -55,9 +55,6 @@ public class UDPClient extends AsyncTask<Void, Void, Void> {
             udpSocket.send(packetToSend);
             System.out.println("@UDP Client send sucessfuly");
             udpSocket.close();
-        } catch (SocketException e) {
-            e.printStackTrace();
-            ERROR_FLAG = true;
         } catch (IOException e) {
             e.printStackTrace();
             ERROR_FLAG = true;
@@ -69,6 +66,9 @@ public class UDPClient extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void aVoid) {
         if (ERROR_FLAG){
             Toast.makeText(context, "ERROR CONNECTION", Toast.LENGTH_LONG).show();
+        }
+        else{
+            PhoneMainActivity.isConnected = true;
         }
     }
 }

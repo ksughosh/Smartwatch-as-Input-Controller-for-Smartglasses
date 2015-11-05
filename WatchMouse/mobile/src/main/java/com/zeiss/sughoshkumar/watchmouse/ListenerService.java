@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
  * Created by sughoshkumar on 26/08/15.
  */
 public class ListenerService extends WearableListenerService {
-    @Override
+   @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         String path = messageEvent.getPath();
         System.out.println(" Message. Path : " + path + " received");
@@ -28,8 +28,11 @@ public class ListenerService extends WearableListenerService {
         int modality = object.getModality();
         System.out.println("x : " + x + " y : " + y + "type : " + type + "modality " + object.getModality(modality));
         try {
-            UDPClient client = new UDPClient(ListenerService.this, "172.16.10.49", 8085, data);
-            client.execute();
+            if (PhoneMainActivity.isConnected) {
+                System.out.println("Sending from the listener to IP : " + PhoneMainActivity.ipAddress + " port : " + PhoneMainActivity.port);
+                UDPClient client = new UDPClient(ListenerService.this, PhoneMainActivity.ipAddress, PhoneMainActivity.port, data);
+                client.execute();
+            }
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }

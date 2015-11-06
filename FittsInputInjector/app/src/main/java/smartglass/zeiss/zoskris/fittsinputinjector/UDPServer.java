@@ -23,13 +23,12 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     private int port;
     private byte[] receiveData;
     private DatagramSocket datagramSocket;
-    private InjectSurfaceView iView;
-    private static final int TOUCH_MODALITY = 1;
-    private static final int GESTURE_MODALITY = 2;
-    private static final float THRESHOLD = 0.5f;
+    private FittsInjectView iView;
+    private static final float MAXIMUM_AMPLITUDE = 0.5f;
+    private int switchModality = 0;
 
 
-    public UDPServer(int p, InjectSurfaceView childView, Point dimension) {
+    public UDPServer(int p, FittsInjectView childView, Point dimension) {
         port = p;
         receiveData = new byte[MAX_DATAGRAM_PACKET_SIZE];
         keepRunning = true;
@@ -50,13 +49,6 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
         return SCREEN_Y / WATCH_RES * y;
     }
 
-    private boolean modalitySwitchGestureAccelerate(int modality){
-         return(modality == TOUCH_MODALITY);
-    }
-
-    private boolean modalitySwitchTouchAccelerate(int modality){
-        return (modality == GESTURE_MODALITY);
-    }
 
     @Override
     protected Void doInBackground(Void... params) {
@@ -72,13 +64,11 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                 float x = objectReceived.getX();
                 float y = objectReceived.getY();
                 int modality = objectReceived.getModality();
-                Log.i("UDP", objectReceived.toString());
+//                System.out.println("UDP " + objectReceived.toString());
                 if (type == 1) {
                     iView.setIsScrolling(true);
                     iView.setIsTapped(false);
-//                    if (modality  == GESTURE_MODALITY)
-//                        iView.mouseMove(pixelConverterX(10 * x), pixelConverterY(10 * y));
-                    iView.mouseMove(pixelConverterX(x), pixelConverterY(y));
+                    iView.mouseMove(pixelConverterX(x * getCD(modality)), pixelConverterY(y * getCD(modality)));
                 } else if (type == 2) {
                     iView.setIsTapped(true);
                     iView.setIsScrolling(false);
@@ -92,5 +82,46 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
             datagramSocket.close();
         }
         return null;
+    }
+
+    private float getCD(int modality){
+
+        /**
+         * 0 : only touch
+         * 1 : only gesture
+         * 2 : symphony with touch fine and gesture coarse
+         * 3 : symphony with gesture fine and touch coarse
+         * default : symphony with no coarse and fine
+         */
+
+        switch(switchModality){
+            case 0:
+                if (modality == SenderObject.GESTURE_MODALITY)
+                    return 0;
+                else
+                    return 1;
+            case 1:
+                if (modality == SenderObject.TOUCH_MODALITY)
+                    return 0;
+                else
+                    return 1;
+            case 2 :
+                if (modality == SenderObject.GESTURE_MODALITY) {
+                    //return MAXIMUM_AMPLITUDE * 2f * FittsInjectView.RADIUS_We;
+                    return 2;
+                } else {
+                    return 0.5f;
+                }
+            case 3:
+                if (modality == SenderObject.TOUCH_MODALITY) {
+                    //return MAXIMUM_AMPLITUDE * 2f *FittsInjectView.RADIUS_We;
+                    return 2;
+                }
+                else{
+                    return 0.5f;
+                }
+            default:
+                return 1;
+        }
     }
 }

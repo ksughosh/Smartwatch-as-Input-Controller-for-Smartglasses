@@ -11,10 +11,10 @@ public class InjectViewThread extends Thread {
 
     public static Looper surfaceLooper;
     SurfaceHolder surfaceHolder;
-    InjectSurfaceView injectSurfaceView;
+    FittsInjectView injectSurfaceView;
     Canvas canvas;
 
-    InjectViewThread(SurfaceHolder sh, InjectSurfaceView surfaceView) {
+    InjectViewThread(SurfaceHolder sh, FittsInjectView surfaceView) {
         surfaceHolder = sh;
         injectSurfaceView = surfaceView;
     }

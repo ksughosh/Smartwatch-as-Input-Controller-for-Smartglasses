@@ -54,7 +54,7 @@ public class InjectSurfaceView extends SurfaceView implements SurfaceHolder.Call
     private void init(int xer, int yer) {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         DISTANCE_RADIUS = DISTANCE_DIAMETER / 2;
-        RADIUS_We = Float.parseFloat(String.valueOf(2f * DISTANCE_DIAMETER / Math.pow(2, INDEX_OF_DIFFICULTY)));
+        RADIUS_We = Float.parseFloat(String.valueOf(DISTANCE_DIAMETER / Math.pow(2, INDEX_OF_DIFFICULTY)));
         DISTANCE_ANGLE = 360 / NUMBER_OF_TARGETS;
         INDEX_OF_DIFFICULTY = Math.log(2 * DISTANCE_DIAMETER / RADIUS_We);
         XYPair = new ArrayList<Coordinates>();
@@ -75,7 +75,7 @@ public class InjectSurfaceView extends SurfaceView implements SurfaceHolder.Call
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        thread = new InjectViewThread(sh, this);
+//        thread = new InjectViewThread(sh, this);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStrokeWidth(0.5f);
         mPaint.setColor(Color.RED);

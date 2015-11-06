@@ -13,13 +13,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callback {
@@ -34,7 +32,7 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
     private float x, y, offsetX, offsetY, prevOffsetX, prevOffsetY;
     private static int SIZE = 6;
     private Handler mHandler;
-    private boolean isFinished, isInitialized, isTargetSelected;
+    private boolean isFinished, isInitialized;
     private Coordinates currentTarget;
     private int targetCount;
     private int mouseCount = 0;
@@ -123,7 +121,7 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         generateRandomTargets();
         offsetX = offsetY = prevOffsetY = prevOffsetX = 0;
         mHandler = new Handler(Looper.getMainLooper());
-        isFinished = isInitialized = isTargetSelected = false;
+        isFinished = isInitialized = false;
         isTapped = false;
         timeCollection = new ArrayList<>();
         targetCount = 0;
@@ -235,7 +233,6 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
                     currentTarget = SourceXYPair.get(randomTarget.get(targetCount));
                 }
             }
-            isTargetSelected = false;
             isTapped = false;
             isScrolling = true;
         }

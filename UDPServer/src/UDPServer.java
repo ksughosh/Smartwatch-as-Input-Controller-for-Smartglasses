@@ -1,5 +1,5 @@
 
-import com.zeiss.sughoshkumar.watchmouse.SenderObject;
+import com.zeiss.sughoshkumar.senderobject.SenderObject;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
@@ -22,17 +22,17 @@ public class UDPServer {
         int middleOfScreenY = (int) Math.round(screenSize.getHeight()/2);
 
         System.out.println("Server started");
-        byte [] receiveData = new byte[94];
+        byte [] receiveData = new byte[128];
         Robot robot = new Robot();
         while (true){
             DatagramPacket receivedPacket = new DatagramPacket(receiveData, receiveData.length);
             serverSocket.receive(receivedPacket);
 
             SenderObject senderObject = SenderObject.parseFrom(receivedPacket.getData());
-            int y = senderObject.getY();
-            int x = senderObject.getX();
+            float y = senderObject.getY();
+            float x = senderObject.getX();
             int type = senderObject.getType();
-            
+            System.out.println(senderObject.toString());
             //Get the current pointer location.
             Point mousePointer = MouseInfo.getPointerInfo().getLocation();
             
@@ -41,12 +41,12 @@ public class UDPServer {
                 robot.mousePress(InputEvent.BUTTON1_MASK);
                 robot.mouseRelease(InputEvent.BUTTON1_MASK);
             }
-            // otherwise move the mouse pointer by subtracting to current 
+            // otherwise move the mouse pointer by subtracting to current
             // coordinates. Subtraction, because of the flipped right and left.
             else {
-                int curX = mousePointer.x - x;
-                int curY = mousePointer.y - y;
-                robot.mouseMove(curX, curY);
+                float curX = mousePointer.x - x;
+                float curY = mousePointer.y - y;
+                robot.mouseMove(Math.round(curX), Math.round(curY));
             }
         }
     }

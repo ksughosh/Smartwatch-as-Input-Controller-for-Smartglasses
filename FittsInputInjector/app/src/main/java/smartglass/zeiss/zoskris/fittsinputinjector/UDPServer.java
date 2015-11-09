@@ -25,7 +25,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     private DatagramSocket datagramSocket;
     private FittsInjectView iView;
     private static final float MAXIMUM_AMPLITUDE = 0.5f;
-    private final int switchModality = 5;
+    private final int switchModality = 2;
     private boolean isInit;
     private double time;
 
@@ -69,7 +69,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                 float x = objectReceived.getX();
                 float y = objectReceived.getY();
                 int modality = objectReceived.getModality();
-                System.out.println("UDP " + objectReceived.toString());
+//                System.out.println("UDP " + objectReceived.toString());
                 if (switchModality == 0){
                     if (type == 1) {
                         iView.setIsScrolling(true);
@@ -144,18 +144,18 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                     return 1;
             case 2 :
                 if (modality == SenderObject.GESTURE_MODALITY) {
-                    //return MAXIMUM_AMPLITUDE * 2f * FittsInjectView.RADIUS_We;
-                    return 2;
+                    double distance = iView.getDistance();
+                    return (float) distance/Math.min(SCREEN_X,SCREEN_Y);
                 } else {
-                    return 0.5f;
+                    return iView.getTargetWidth()/100;
                 }
             case 3:
                 if (modality == SenderObject.TOUCH_MODALITY) {
-                    //return MAXIMUM_AMPLITUDE * 2f *FittsInjectView.RADIUS_We;
-                    return 2;
+                    double distance = iView.getDistance();
+                    return (float) distance/Math.min(SCREEN_X,SCREEN_Y);
                 }
                 else{
-                    return 0.5f;
+                    return iView.getTargetWidth()/100;
                 }
             default:
                 return 1;

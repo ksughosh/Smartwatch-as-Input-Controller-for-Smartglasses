@@ -193,6 +193,14 @@ public class InjectSurfaceView extends SurfaceView implements SurfaceHolder.Call
         mHandler.post(thread);
     }
 
+    public float getRadius(){
+        return RADIUS_We;
+    }
+
+    public float getDistance(){
+        return DISTANCE_DIAMETER;
+    }
+
     /**
      * Check redundant offset that needs to be zeroed.
      */

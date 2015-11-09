@@ -23,9 +23,10 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     private DatagramSocket datagramSocket;
     private InjectSurfaceView iView;
     private static final float MAXIMUM_AMPLITUDE = 0.5f;
-    private int switchModality = 1;
+    private int switchModality = 2;
     private boolean isInit = false;
     private double time;
+    float x,y;
 
 
     public UDPServer(int p, InjectSurfaceView childView, Point dimension) {
@@ -36,6 +37,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
         SCREEN_X = dimension.x;
         SCREEN_Y = dimension.y;
         time = 0;
+        x = y = 0.1f;
     }
 
     public static void kill() {
@@ -63,8 +65,8 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                 SenderObject objectReceived = SenderObject.parseFrom(receiveData);
                 int type = objectReceived.getType();
 
-                float x = objectReceived.getX();
-                float y = objectReceived.getY();
+                x = objectReceived.getX();
+                y = objectReceived.getY();
                 double diff = 0;
                 int modality = objectReceived.getModality();
                 System.out.println("UDP " + objectReceived.toString());
@@ -154,18 +156,15 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                     return 1;
             case 2 :
                 if (modality == SenderObject.GESTURE_MODALITY) {
-                    //return MAXIMUM_AMPLITUDE * 2f * FittsInjectView.RADIUS_We;
-                    return 2;
+                    return iView.getDistance()/Math.min(SCREEN_X,SCREEN_Y);
                 } else {
-                    return 0.5f;
+                    return iView.getRadius()/200;
                 }
             case 3:
                 if (modality == SenderObject.TOUCH_MODALITY) {
-                    //return MAXIMUM_AMPLITUDE * 2f *FittsInjectView.RADIUS_We;
-                    return 2;
-                }
-                else{
-                    return 0.5f;
+                    return iView.getDistance()/Math.min(SCREEN_X,SCREEN_Y);
+                } else {
+                    return iView.getRadius()/200;
                 }
             default:
                 return 1;

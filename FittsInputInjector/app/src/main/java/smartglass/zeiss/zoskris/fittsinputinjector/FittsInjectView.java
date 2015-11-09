@@ -19,8 +19,10 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callback {
     SurfaceHolder sh;
@@ -48,8 +50,7 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
     private float currentPointerDistance;
     private Coordinates destination;
     private HashMap<Coordinates, Float> overshootRecord;
-
-
+    private ArrayList<Double> distances;
     public boolean isTapped, isScrolling;
 
 
@@ -67,16 +68,16 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         randomTarget = new ArrayList<>();
         switch (INDEX_OF_DIFFICULTY) {
             case 4:
-                SourceXYPair.add(new Coordinates(40,234));
-                SourceXYPair.add(new Coordinates(772.82f, 145));
-                SourceXYPair.add(new Coordinates(600,150));
-                SourceXYPair.add(new Coordinates(120,400));
-                SourceXYPair.add(new Coordinates(130, 250));
+                SourceXYPair.add(new Coordinates(40f,234f));
+                SourceXYPair.add(new Coordinates(772.82f, 145f));
+                SourceXYPair.add(new Coordinates(600f,150f));
+                SourceXYPair.add(new Coordinates(120f,400f));
+                SourceXYPair.add(new Coordinates(150f, 250f));
 
-                TargetXYPair.add(new Coordinates(640,234));
-                TargetXYPair.add(new Coordinates(80,545));
-                TargetXYPair.add(new Coordinates(600, 550));
-                TargetXYPair.add(new Coordinates(1020, 400));
+                TargetXYPair.add(new Coordinates(640f,234f));
+                TargetXYPair.add(new Coordinates(80f,545f));
+                TargetXYPair.add(new Coordinates(600f, 550f));
+                TargetXYPair.add(new Coordinates(1020f, 400f));
                 TargetXYPair.add(new Coordinates(1089.69f, 592.02f));
                 SIZE = 10;
                 break;
@@ -121,6 +122,7 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
             System.exit(1);
         }
         generateRandomTargets();
+        computeDistance();
         offsetX = offsetY = prevOffsetY = prevOffsetX = 0;
         mHandler = new Handler(Looper.getMainLooper());
         isFinished = isInitialized = false;
@@ -132,6 +134,15 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         overshootRecord = new HashMap<>();
     }
 
+    private void computeDistance (){
+        distances = new ArrayList<>();
+        for (int i = 0; i < SourceXYPair.size(); i++){
+            double xDiff = Math.pow((TargetXYPair.get(i).getX() - SourceXYPair.get(i).getX()),2);
+            double yDiff = Math.pow((TargetXYPair.get(i).getY() - SourceXYPair.get(i).getY()),2);
+            double distance = Math.sqrt(xDiff + yDiff);
+            distances.add(distance);
+        }
+    }
 
     /**
      * generate random targets
@@ -141,7 +152,7 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         for (int i = 0; i < 5; i++){
             randomTarget.add(i);
         }
-        Collections.shuffle(randomTarget, new Random());
+//        Collections.shuffle(randomTarget, new Random());
     }
 
     @Override
@@ -156,6 +167,7 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
     private double getRadius(int index){
         double distance = Math.sqrt(Math.pow((TargetXYPair.get(index).getX()-SourceXYPair.get(index).getX()),2) +
                 Math.pow((TargetXYPair.get(index).getY() - SourceXYPair.get(index).getY()),2));
+        System.out.println("radius : " + distance/Math.pow(2, INDEX_OF_DIFFICULTY));
         return (distance/Math.pow(2, INDEX_OF_DIFFICULTY));
     }
 
@@ -211,17 +223,15 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         }
 
         if (!isFinished) {
+            RADIUS_We = (float) getRadius(targetCount);
             mPaint.setColor(Color.YELLOW);
-            System.out.println("target : "+ index + " X : " + currentTarget.getX() + " Y : " + currentTarget.getY() + " tapped : " + isTapped);
             canvas.drawCircle(currentTarget.getX(), currentTarget.getY(), RADIUS_We, mPaint);
             mPaint.setColor(Color.RED);
             mPaint.setTextSize(30);
             canvas.drawText(String.valueOf(targetCount), currentTarget.getX(), currentTarget.getY(), mPaint);
         }
 
-        isGestureAcquired = false;
-        if (hasIntersected(x, y, RADIUS_We, SIZE))
-            isGestureAcquired = true;
+        isGestureAcquired = hasIntersected(x, y, RADIUS_We, SIZE);
 
         if (isOverShooting() && !hasIntersected(x,y,RADIUS_We,SIZE)){
             overshootRecord.put(destination, previousPointerDistance);
@@ -409,6 +419,14 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
             else
                 return false;
         }
+    }
+
+    public float getTargetWidth(){
+        return RADIUS_We * 2;
+    }
+
+    public double getDistance(){
+       return distances.get(targetCount);
     }
 
     @Override

@@ -5,7 +5,10 @@ import android.os.Looper;
 import android.view.SurfaceHolder;
 
 /**
- * Created by zoskris on 05/10/15.
+ * Created by Sughosh Krishna Kumar on 05/10/15.
+ * This is a work of thesis and therefore an academic work
+ * This program is not to be used for any other purpose,
+ * other than academics.
  */
 public class InjectViewThread extends Thread {
 
@@ -17,6 +20,10 @@ public class InjectViewThread extends Thread {
         surfaceHolder = sh;
         injectSurfaceView = surfaceView;
     }
+
+    /**
+     * Start the surface view and handle the drawing.
+     */
 
     @Override
     public void run() {

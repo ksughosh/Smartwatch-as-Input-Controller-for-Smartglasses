@@ -19,10 +19,16 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
+
+/**
+ * Created by Sughosh Krishna Kumar on 05/10/15.
+ * This is a work of thesis and therefore an academic work
+ * This program is not to be used for any other purpose,
+ * other than academics.
+ */
+
 
 public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callback {
     SurfaceHolder sh;
@@ -54,13 +60,20 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
     public boolean isTapped, isScrolling;
 
 
-
+    /**
+     *
+     * @param context get application context to draw the view.
+     */
     public FittsInjectView(Context context) {
         super(context);
         sh = getHolder();
         sh.addCallback(this);
         init();
     }
+
+    /**
+     * Detailed initialization of the variables
+     */
 
     private void init(){
         SourceXYPair = new ArrayList<>();
@@ -134,13 +147,20 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         overshootRecord = new HashMap<>();
     }
 
+    /**
+     * Compute the distance between the source and destination
+     * targets.
+     */
+
     private void computeDistance (){
         distances = new ArrayList<>();
-        for (int i = 0; i < SourceXYPair.size(); i++){
-            double xDiff = Math.pow((TargetXYPair.get(i).getX() - SourceXYPair.get(i).getX()),2);
-            double yDiff = Math.pow((TargetXYPair.get(i).getY() - SourceXYPair.get(i).getY()),2);
+        for (int i = 0; i < randomTarget.size(); i++){
+            int ind = randomTarget.get(i);
+            double xDiff = Math.pow((TargetXYPair.get(ind).getX() - SourceXYPair.get(ind).getX()),2);
+            double yDiff = Math.pow((TargetXYPair.get(ind).getY() - SourceXYPair.get(ind).getY()),2);
             double distance = Math.sqrt(xDiff + yDiff);
             distances.add(distance);
+            System.out.println("Distance : " +i + " " + distance);
         }
     }
 
@@ -152,8 +172,13 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         for (int i = 0; i < 5; i++){
             randomTarget.add(i);
         }
-//        Collections.shuffle(randomTarget, new Random());
+        Collections.shuffle(randomTarget, new Random());
     }
+
+    /**
+     * A callback function
+     * @param holder surface holder to initialize the thread.
+     */
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -164,12 +189,19 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         thread.start();
     }
 
+    /**
+     *
+     * @param index index value.
+     * @return current radius for the distance and ID
+     */
+
     private double getRadius(int index){
-        double distance = Math.sqrt(Math.pow((TargetXYPair.get(index).getX()-SourceXYPair.get(index).getX()),2) +
-                Math.pow((TargetXYPair.get(index).getY() - SourceXYPair.get(index).getY()),2));
-        System.out.println("radius : " + distance/Math.pow(2, INDEX_OF_DIFFICULTY));
-        return (distance/Math.pow(2, INDEX_OF_DIFFICULTY));
+        return (distances.get(index)/Math.pow(2, INDEX_OF_DIFFICULTY));
     }
+
+    /**
+     * re draw the canvas
+     */
 
     public void reDraw(){
         mHandler.post(thread);
@@ -293,6 +325,14 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         prevOffsetY = offsetY;
     }
 
+    /**
+     * Check if the pointer has collided with the target object.
+     * @param x : xPos
+     * @param y : yPos
+     * @param radiusOne : target radius
+     * @param radiusTwo : pointer radius
+     * @return : boolean if collided or not
+     */
     private boolean hasIntersected(float x, float y, float radiusOne, float radiusTwo){
         float dx = currentTarget.getX() - x;
         float dy = currentTarget.getY() - y;
@@ -300,15 +340,30 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         return distance < (radiusOne + radiusTwo);
     }
 
+    /**
+     * @param coordinate current coordinate value
+     * @return within border conditions
+     */
 
     private float getTopCoordinate(float coordinate) {
         return coordinate - (SIZE);
     }
 
+    /**
+     * @param coordinate current coordinate value
+     * @return within border conditions
+     */
+
     private float getBottomCoordinate(float coordinate) {
         return coordinate + (SIZE);
     }
 
+
+    /**
+     * Update the pointer position
+     * @param xPos : x position
+     * @param yPos : y position
+     */
     public void mouseMove(final float xPos, final float yPos) {
         offsetX = xPos;
         offsetY = yPos;
@@ -317,6 +372,10 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
             UDPServer.kill();
     }
 
+
+    /**
+     * print the time between objects
+     */
     private void printTime(){
         int  count = 1;
         for (double d : timeCollection){
@@ -324,6 +383,11 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
             count++;
         }
     }
+
+    /**
+     * Write the required data to the files for analysis.
+     */
+
     private void writeTimeAndOvershootToFile(){
         // create a folder
         File baseDir = new File(Environment.getExternalStorageDirectory(), "Fitts");
@@ -421,12 +485,21 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         }
     }
 
+    /**
+     * To get current radius
+     * @return current radius
+     */
     public float getTargetWidth(){
         return RADIUS_We * 2;
     }
 
+    /**
+     * To get the current distance.
+     * @return the current distance between the two targets
+     */
+
     public double getDistance(){
-       return distances.get(targetCount);
+       return distances.get(randomTarget.get(targetCount));
     }
 
     @Override
@@ -455,7 +528,9 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
             return false;
     }
 
-
+    /**
+     * Class for organizing every value in form of Coordinate measure.
+     */
     private class Coordinates {
         float xs;
         float ys;

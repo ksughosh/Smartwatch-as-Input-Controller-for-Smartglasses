@@ -25,7 +25,9 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     private DatagramSocket datagramSocket;
     private FittsInjectView iView;
     private static final float MAXIMUM_AMPLITUDE = 0.5f;
-    private int switchModality = 0;
+    private final int switchModality = 5;
+    private boolean isInit;
+    private double time;
 
 
     public UDPServer(int p, FittsInjectView childView, Point dimension) {
@@ -35,6 +37,8 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
         iView = childView;
         SCREEN_X = dimension.x;
         SCREEN_Y = dimension.y;
+        isInit = false;
+        time = 0;
     }
 
     public static void kill() {
@@ -50,6 +54,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     }
 
 
+    @SuppressWarnings("ResourceType")
     @Override
     protected Void doInBackground(Void... params) {
         try {
@@ -64,14 +69,46 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                 float x = objectReceived.getX();
                 float y = objectReceived.getY();
                 int modality = objectReceived.getModality();
-//                System.out.println("UDP " + objectReceived.toString());
-                if (type == 1) {
-                    iView.setIsScrolling(true);
-                    iView.setIsTapped(false);
-                    iView.mouseMove(pixelConverterX(x * getCD(modality)), pixelConverterY(y * getCD(modality)));
-                } else if (type == 2) {
-                    iView.setIsTapped(true);
-                    iView.setIsScrolling(false);
+                System.out.println("UDP " + objectReceived.toString());
+                if (switchModality == 0){
+                    if (type == 1) {
+                        iView.setIsScrolling(true);
+                        iView.setIsTapped(false);
+                        iView.mouseMove(pixelConverterX(y * getCD(modality)), pixelConverterY(x * getCD(modality) * -1));
+                    }
+                    else if (type == 2) {
+                        iView.setIsTapped(true);
+                        iView.setIsScrolling(false);
+                    }
+                }
+                else if (switchModality == 1){
+                    if (type == 1) {
+                        iView.setIsScrolling(true);
+                        iView.setIsTapped(false);
+                        iView.mouseMove(pixelConverterX(x * getCD(modality)), pixelConverterY(y * getCD(modality)));
+                    }
+                    System.out.println("is acquired ? : " + iView.isGestureAcquired());
+                    if (iView.isGestureAcquired() && !isInit) {
+                        isInit = true;
+                        time = System.nanoTime();
+                    }
+                    else if (iView.isGestureAcquired() && ((System.nanoTime() - time)/1e6) > 1000){
+                        time = System.nanoTime();
+                        isInit = true;
+                        iView.setIsScrolling(false);
+                        iView.setIsTapped(true);
+                        iView.reDraw();
+                    }
+                }
+                else {
+                    if (type == 1) {
+                        iView.setIsScrolling(true);
+                        iView.setIsTapped(false);
+                        iView.mouseMove(pixelConverterX(x * getCD(modality)), pixelConverterY(y * getCD(modality)));
+                    } else if (type == 2) {
+                        iView.setIsTapped(true);
+                        iView.setIsScrolling(false);
+                    }
                 }
             }
 
@@ -99,7 +136,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                 if (modality == SenderObject.GESTURE_MODALITY)
                     return 0;
                 else
-                    return 1;
+                    return -1;
             case 1:
                 if (modality == SenderObject.TOUCH_MODALITY)
                     return 0;

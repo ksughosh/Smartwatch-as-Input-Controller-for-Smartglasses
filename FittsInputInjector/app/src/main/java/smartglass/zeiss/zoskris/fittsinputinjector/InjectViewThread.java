@@ -9,7 +9,6 @@ import android.view.SurfaceHolder;
  */
 public class InjectViewThread extends Thread {
 
-    public static Looper surfaceLooper;
     SurfaceHolder surfaceHolder;
     FittsInjectView injectSurfaceView;
     Canvas canvas;

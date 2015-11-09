@@ -17,8 +17,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callback {
     SurfaceHolder sh;
@@ -32,7 +34,7 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
     private float x, y, offsetX, offsetY, prevOffsetX, prevOffsetY;
     private static int SIZE = 6;
     private Handler mHandler;
-    private boolean isFinished, isInitialized;
+    private boolean isFinished, isInitialized, isGestureAcquired;
     private Coordinates currentTarget;
     private int targetCount;
     private int mouseCount = 0;
@@ -139,7 +141,7 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         for (int i = 0; i < 5; i++){
             randomTarget.add(i);
         }
-        //Collections.shuffle(randomTarget, new Random());
+        Collections.shuffle(randomTarget, new Random());
     }
 
     @Override
@@ -155,6 +157,10 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
         double distance = Math.sqrt(Math.pow((TargetXYPair.get(index).getX()-SourceXYPair.get(index).getX()),2) +
                 Math.pow((TargetXYPair.get(index).getY() - SourceXYPair.get(index).getY()),2));
         return (distance/Math.pow(2, INDEX_OF_DIFFICULTY));
+    }
+
+    public void reDraw(){
+        mHandler.post(thread);
     }
 
     /**
@@ -212,6 +218,10 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
             mPaint.setTextSize(30);
             canvas.drawText(String.valueOf(targetCount), currentTarget.getX(), currentTarget.getY(), mPaint);
         }
+
+        isGestureAcquired = false;
+        if (hasIntersected(x, y, RADIUS_We, SIZE))
+            isGestureAcquired = true;
 
         if (isOverShooting() && !hasIntersected(x,y,RADIUS_We,SIZE)){
             overshootRecord.put(destination, previousPointerDistance);
@@ -355,6 +365,10 @@ public class FittsInjectView extends SurfaceView implements SurfaceHolder.Callba
             e.printStackTrace();
         }
 
+    }
+
+    public boolean isGestureAcquired(){
+        return isGestureAcquired;
     }
 
 

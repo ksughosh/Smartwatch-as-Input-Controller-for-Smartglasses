@@ -24,7 +24,7 @@ public class WearMainActivity extends WearableActivity{
 
 
     private GoogleApiClient client;
-    private String nodeId;
+    private static String nodeId;
     private BoxInsetLayout mContainerView;
 
 
@@ -36,7 +36,7 @@ public class WearMainActivity extends WearableActivity{
         new Thread(new SensorThread(this)).start();
         client = getGoogleApiClient(this);
         retrieveDeviceNode();
-
+        System.out.println(" Main: Node ID : " + nodeId);
         mContainerView = (BoxInsetLayout) findViewById(R.id.container);
         mContainerView.setOnTouchListener(new TouchMouse(WearMainActivity.this));
 
@@ -88,11 +88,13 @@ public class WearMainActivity extends WearableActivity{
     }
 
     private void sendToast(final String message, final byte[] data) {
+        System.out.println("node id : " +nodeId);
         if (nodeId != null) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     client.connect();
+                    System.out.println("sent");
                     Wearable.MessageApi.sendMessage(client, nodeId, message, data);
                 }
             }).start();

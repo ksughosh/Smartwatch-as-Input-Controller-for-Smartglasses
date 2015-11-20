@@ -1,0 +1,83 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:2:1-31:12
+	package
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:3:5-46
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:2:11-69
+	android:versionCode
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml
+uses-permission#android.permission.BLUETOOTH
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:5:5-68
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:5:22-65
+uses-permission#android.permission.BLUETOOTH_ADMIN
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:6:5-74
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:6:22-71
+uses-permission#android.permission.INTERNET
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:7:5-66
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:7:22-64
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:8:5-79
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:8:22-76
+uses-permission#android.permission.ACCESS_WIFI_STATE
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:9:5-75
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:9:22-73
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:10:5-80
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:10:22-78
+uses-permission#android.permission.VIBRATE
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:11:5-66
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:11:22-63
+application
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:15:5-29:19
+MERGED from [com.android.support:appcompat-v7:23.1.0] /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.0/AndroidManifest.xml:22:5-20
+MERGED from [com.android.support:support-v4:23.1.0] /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.0/AndroidManifest.xml:22:5-20
+	android:label
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:18:9-41
+	android:supportsRtl
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:19:9-35
+	android:allowBackup
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:16:9-35
+	android:icon
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:17:9-43
+	android:theme
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:20:9-40
+activity#com.example.sughoshkumar.trials.MainActivity
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:21:9-28:20
+	android:theme
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:22:13-71
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:21:19-47
+intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:23:13-27:29
+action#android.intent.action.MAIN
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:24:17-69
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:24:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:26:17-77
+	android:name
+		ADDED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml:26:27-74
+uses-sdk
+INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+MERGED from [com.android.support:appcompat-v7:23.1.0] /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.0/AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:support-v4:23.1.0] /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.0/AndroidManifest.xml:20:5-43
+	android:targetSdkVersion
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml
+		INJECTED from /home/zoskris/Documents/Thesis-final/Thesis/Trials/app/src/main/AndroidManifest.xml

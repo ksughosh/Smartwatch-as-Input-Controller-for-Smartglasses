@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/zoskris/Documents/Thesis-final/Thesis/Trials/app/libs/SenderObject.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="a2f4efc1ac12860144f2a5e5e7ddf7a9dc3dc603">
+        <dex dex="/home/zoskris/Documents/Thesis-final/Thesis/Trials/app/build/intermediates/pre-dexed/debug/SenderObject-d022ccaf4be21b1bc68e85335dec7a792306cc53.jar" />
+    </item>
+
+</items>

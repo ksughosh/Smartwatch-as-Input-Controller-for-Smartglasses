@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SenderObject">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/SenderObject.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

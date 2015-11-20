@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 public class MainActivity extends Activity {
 
-    static InjectSurfaceView iView;
+    static FittsInputInjector iView;
     UDPServer server;
     public static int SCREEN_X, SCREEN_Y;
 
@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        iView = new InjectSurfaceView(this);
+        iView = new FittsInputInjector(this);
         setContentView(iView, params);
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();

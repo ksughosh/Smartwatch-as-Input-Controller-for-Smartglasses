@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-/**
- * Created by zoskris on 05/10/15.
- */
 public class UDPServer extends AsyncTask<Void, Void, Void> {
     private static final int WATCH_RES = 320;
     private static final int MAX_DATAGRAM_PACKET_SIZE = 128;
@@ -21,22 +18,18 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     private int port;
     private byte[] receiveData;
     private DatagramSocket datagramSocket;
-    private InjectSurfaceView iView;
-    private static final float MAXIMUM_AMPLITUDE = 0.5f;
-    private int switchModality = 2;
-    private boolean isInit = false;
-    private double time;
+    private FittsInputInjector iView;
+    private int switchModality = 1;
     float x,y;
 
 
-    public UDPServer(int p, InjectSurfaceView childView, Point dimension) {
+    public UDPServer(int p, FittsInputInjector childView, Point dimension) {
         port = p;
         receiveData = new byte[MAX_DATAGRAM_PACKET_SIZE];
         keepRunning = true;
         iView = childView;
         SCREEN_X = dimension.x;
         SCREEN_Y = dimension.y;
-        time = 0;
         x = y = 0.1f;
     }
 
@@ -67,14 +60,13 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
 
                 x = objectReceived.getX();
                 y = objectReceived.getY();
-                double diff = 0;
                 int modality = objectReceived.getModality();
                 System.out.println("UDP " + objectReceived.toString());
                 if (switchModality == 0){
                     if (type == 1) {
                         iView.setIsScrolling(true);
                         iView.setIsTapped(false);
-                        iView.mouseMove(pixelConverterX(y * getCD(modality)), pixelConverterY(x * getCD(modality) * -1));
+                        iView.mouseMove(pixelConverterX(-y * getCD(modality)), pixelConverterY(-x * getCD(modality)));
                     }
                     else if (type == 2) {
                         iView.setIsTapped(true);
@@ -85,20 +77,11 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                     if (type == 1) {
                         iView.setIsScrolling(true);
                         iView.setIsTapped(false);
-                        iView.mouseMove(pixelConverterX(x * getCD(modality)), pixelConverterY(y * getCD(modality)));
+                        iView.mouseMove((x * getCD(modality)), (y * getCD(modality)));
                     }
-                    System.out.println("is acquired ? : " + iView.isGestureAcquired());
-                    if (iView.isGestureAcquired() && !isInit) {
-                        isInit = true;
-                        time = System.nanoTime();
-                    }
-                    else if (iView.isGestureAcquired() && (diff = (System.nanoTime() - time)/1e6) > 1000){
-                        System.out.println("diff : " + diff);
-                        time = System.nanoTime();
-                        isInit = true;
-                        iView.setIsScrolling(false);
+                    else{
                         iView.setIsTapped(true);
-                        iView.reDraw();
+                        iView.setIsScrolling(false);
                     }
                 }
                 else {
@@ -148,24 +131,28 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                 if (modality == SenderObject.GESTURE_MODALITY)
                     return 0;
                 else
-                    return -1;
+                    if (iView.isFinePointing(x,y))
+                        return -1;
+                    else
+                        return -0.3f;
             case 1:
                 if (modality == SenderObject.TOUCH_MODALITY)
                     return 0;
                 else
+                if (iView.isFinePointing(x,y))
                     return 1;
+                else
+                    return 0.3f;
             case 2 :
                 if (modality == SenderObject.GESTURE_MODALITY) {
-                    return iView.getDistance()/Math.min(SCREEN_X,SCREEN_Y);
+                    return 1;
                 } else {
-                    return iView.getRadius()/200;
+                    if (iView.isFinePointing(x,y))
+                        return 0.3f;
+                    else
+                        return 0.1f;
                 }
-            case 3:
-                if (modality == SenderObject.TOUCH_MODALITY) {
-                    return iView.getDistance()/Math.min(SCREEN_X,SCREEN_Y);
-                } else {
-                    return iView.getRadius()/200;
-                }
+
             default:
                 return 1;
         }

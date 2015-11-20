@@ -9,14 +9,13 @@ import android.view.SurfaceHolder;
  */
 public class InjectViewThread extends Thread {
 
-    public static Looper surfaceLooper;
     SurfaceHolder surfaceHolder;
-    InjectSurfaceView injectSurfaceView;
+    FittsInputInjector fittsInputInjector;
     Canvas canvas;
 
-    InjectViewThread(SurfaceHolder sh, InjectSurfaceView surfaceView) {
+    InjectViewThread(SurfaceHolder sh, FittsInputInjector surfaceView) {
         surfaceHolder = sh;
-        injectSurfaceView = surfaceView;
+        fittsInputInjector = surfaceView;
     }
 
     @Override
@@ -25,7 +24,7 @@ public class InjectViewThread extends Thread {
         try {
             canvas = surfaceHolder.lockCanvas();
             synchronized (surfaceHolder) {
-                injectSurfaceView.doDraw(canvas);
+                fittsInputInjector.doDraw(canvas);
             }
         } finally {
             if (canvas != null) {

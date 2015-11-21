@@ -111,6 +111,11 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             //noinspection ResultOfMethodCallIgnored
             baseDir.delete();
     }
+
+    /**
+     * Setter for index of difficulty
+     * @param ID index of difficulty
+     */
     private void setID(float ID){
         exCount ++;
         if (exCount > NUMBER_OF_TRIALS)

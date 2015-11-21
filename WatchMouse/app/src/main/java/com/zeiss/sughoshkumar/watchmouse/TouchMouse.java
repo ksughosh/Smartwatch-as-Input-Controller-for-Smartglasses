@@ -1,36 +1,32 @@
 package com.zeiss.sughoshkumar.watchmouse;
 
-import android.content.Context;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
-import com.google.android.gms.wearable.Wearable;
 import com.zeiss.sughoshkumar.senderobject.SenderObject;
 
-import java.io.IOException;
-import java.util.List;
-
-/**
- * Created by sughoshkumar on 26/08/15.
- */
-@SuppressWarnings("SuspiciousNameCombination")
 public class TouchMouse implements View.OnTouchListener {
 
+    // Variables for the driver
     private float initX, initY, sendX, sendY;
     private static final float SCROLL_THRESHOLD = 0.2f;
     private static long mDeBounce;
     private static boolean mIsScrolling;
 
+    /**
+     * Constructor
+     */
     public TouchMouse(){
         mIsScrolling = false;
         mDeBounce = 0;
     }
 
 
+    /**
+     * Super touch event - driver's implementation
+     * @param v view
+     * @param event event value
+     * @return true of event is consumed
+     */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         WearMainActivity.thread.onPause();
@@ -48,11 +44,7 @@ public class TouchMouse implements View.OnTouchListener {
                sendY = initY - event.getY();
                if ( Math.abs(sendX) > SCROLL_THRESHOLD || Math.abs(sendY) > SCROLL_THRESHOLD){
                    mIsScrolling = true;
-                   try {
-                       sendCurrentPosition();
-                   } catch (IOException e) {
-                       e.printStackTrace();
-                   }
+                   sendCurrentPosition();
                }
 
                initX = event.getX();
@@ -60,12 +52,8 @@ public class TouchMouse implements View.OnTouchListener {
                return true;
            case MotionEvent.ACTION_UP:
                if (((event.getEventTime() - mDeBounce) < 400 && event.getPointerCount() == 1) && (!mIsScrolling)) {
-                   try {
-                       onSingleTap();
-                       WearMainActivity.thread.onResume();
-                   } catch (IOException e) {
-                       e.printStackTrace();
-                   }
+                   onSingleTap();
+                   WearMainActivity.thread.onResume();
                    sendX = 0;
                    sendY = 0;
                    initY = 0;
@@ -85,17 +73,28 @@ public class TouchMouse implements View.OnTouchListener {
        }
     }
 
-    private void onZeroingPosition() throws IOException {
+    /**
+     * Zeroing the position
+     */
+    @SuppressWarnings("unused")
+    private void onZeroingPosition() {
         SenderObject senderObject = new SenderObject(0, 0, 1, SenderObject.TOUCH_MODALITY);
         new UDPClient(senderObject).execute();
     }
 
-    private void onSingleTap() throws IOException {
+    /**
+     * Send registered tap
+     */
+    private void onSingleTap() {
         SenderObject senderObject = new SenderObject(0, 0, 2, SenderObject.TOUCH_MODALITY);
         new UDPClient(senderObject).execute();
     }
 
-    private void sendCurrentPosition() throws IOException {
+    /**
+     * Send the generated X, Y position
+     */
+    @SuppressWarnings("SuspiciousNameCombination")
+    private void sendCurrentPosition() {
         SenderObject senderObject = new SenderObject(sendY, sendX, 1, SenderObject.TOUCH_MODALITY);
         new UDPClient(senderObject).execute();
     }

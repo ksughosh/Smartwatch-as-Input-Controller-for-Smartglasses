@@ -22,12 +22,17 @@ import java.util.List;
 
 public class WearMainActivity extends WearableActivity{
 
+    // Define the main parameters
     private BoxInsetLayout mContainerView;
     public static SensorThread thread;
     public static final String IPAddress = "192.168.43.1";
     public static final int port = 8080;
     public static boolean isConnected = false;
 
+    /**
+     * Main UI
+     * @param savedInstanceState bundle for UI state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,24 +55,37 @@ public class WearMainActivity extends WearableActivity{
 
     }
 
+    /**
+     * On entering ambient mode
+     * @param ambientDetails bundle state for ambient mode
+     */
     @Override
     public void onEnterAmbient(Bundle ambientDetails) {
         super.onEnterAmbient(ambientDetails);
         updateDisplay();
     }
 
+    /**
+     * Updating the ambient mode
+     */
     @Override
     public void onUpdateAmbient() {
         super.onUpdateAmbient();
         updateDisplay();
     }
 
+    /**
+     * Exiting ambient mode
+     */
     @Override
     public void onExitAmbient() {
         updateDisplay();
         super.onExitAmbient();
     }
 
+    /**
+     * Update the UI
+     */
     private void updateDisplay() {
         if (isAmbient()) {
             //noinspection deprecation
@@ -78,6 +96,11 @@ public class WearMainActivity extends WearableActivity{
     }
 
 
+    /**
+     * Class that will read the sensor values and compute
+     * the sensor fusion as a separate thread from the
+     * UI thread. Optimized!
+     */
     static class SensorThread implements Runnable {
         private Context mContext;
         private SensorManager sensorManager = null;
@@ -94,6 +117,10 @@ public class WearMainActivity extends WearableActivity{
         private Handler handler;
         private int count;
 
+        /**
+         * Constructor
+         * @param context application context
+         */
         SensorThread(Context context){
             mContext = context;
             azimuthValue = rollValue = prevRoll = prevAzimuth = 0.0f;
@@ -102,7 +129,11 @@ public class WearMainActivity extends WearableActivity{
             count = 0;
         }
 
-
+        /**
+         * Fork a separate thread to handle the sensor event
+         * This method contains the implementation of sensor
+         * input interpretation.
+         */
         @Override
         public void run() {
             sensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
@@ -113,7 +144,10 @@ public class WearMainActivity extends WearableActivity{
             handler = new Handler(mHandlerThread.getLooper());
             mListener = new SensorEventListener() {
 
-
+                /**
+                 * Read sensor values callback
+                 * @param event sensor event
+                 */
                 @Override
                 public void onSensorChanged(SensorEvent event) {
                     switch (event.sensor.getType()) {
@@ -133,6 +167,9 @@ public class WearMainActivity extends WearableActivity{
                     updateOrientationDisplay();
                 }
 
+                /**
+                 * Update the values sent to the display
+                 */
                 private void updateOrientationDisplay() {
                     float valueX;
                     float valueY;
@@ -170,6 +207,11 @@ public class WearMainActivity extends WearableActivity{
                     prevRoll = rollValue;
                 }
 
+                /**
+                 * When sensor accuracy changes
+                 * @param sensor which sensor changes
+                 * @param accuracy by how much accuracy it changes
+                 */
                 @Override
                 public void onAccuracyChanged(Sensor sensor, int accuracy) {
                     //do nothing!
@@ -179,6 +221,9 @@ public class WearMainActivity extends WearableActivity{
 
         }
 
+        /**
+         * Mehtod to register the listeners
+         */
         private void registerListeners(){
             sensorManager.registerListener(mListener,
                     sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
@@ -193,6 +238,9 @@ public class WearMainActivity extends WearableActivity{
                     SensorManager.SENSOR_DELAY_FASTEST,handler);
         }
 
+        /**
+         * Mehthod to destroy the running thread
+         */
         @SuppressWarnings("unused")
         public void cleanThread() {
 
@@ -205,12 +253,18 @@ public class WearMainActivity extends WearableActivity{
                 mHandlerThread.quitSafely();
         }
 
+        /**
+         * on Pausing the thread
+         */
         public void onPause(){
             if (sensorManager != null)
                 sensorManager.unregisterListener(mListener);
             count = 0;
         }
 
+        /**
+         * on Resuming the thread
+         */
         public void onResume(){
             registerListeners();
             count = 0;

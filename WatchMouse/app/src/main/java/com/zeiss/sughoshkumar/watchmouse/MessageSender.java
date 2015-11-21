@@ -9,6 +9,11 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.util.List;
 
+/**
+ * This class is not used anymore since this application
+ * became stand alone and can communicate with the server
+ * directly via WiFi.
+ */
 public class MessageSender {
     private GoogleApiClient client;
     private String nodeId;

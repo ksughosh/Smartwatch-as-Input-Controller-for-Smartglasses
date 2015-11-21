@@ -3,29 +3,32 @@ package com.zeiss.sughoshkumar.watchmouse;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.zeiss.sughoshkumar.senderobject.SenderObject;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 
-/**
- * Created by sughoshkumar on 26/08/15.
- */
+@SuppressWarnings({"unused", "FieldCanBeLocal"})
 public class UDPClient extends AsyncTask<Void, Void, Void> {
+
+    // Define the required UDP parameters
     private DatagramSocket udpSocket;
     private int port;
     private InetAddress ipAddress;
     private static boolean ERROR_FLAG;
     private Context context;
-
     private byte[] dataToSend;
 
+    /**
+     * Constructor
+     * @param context1 application context for first connect to determine the connection
+     * @param ip ip address
+     * @param p port
+     * @param data data to be sent
+     * @throws UnknownHostException if host for the IP not found
+     */
     UDPClient(Context context1, String ip, int p, byte[] data) throws UnknownHostException {
         context = context1;
         ipAddress = InetAddress.getByName(ip);
@@ -34,6 +37,10 @@ public class UDPClient extends AsyncTask<Void, Void, Void> {
         ERROR_FLAG = false;
     }
 
+    /**
+     * Constructor
+     * @param data data to be sent
+     */
     UDPClient(SenderObject data){
         try {
             dataToSend = SenderObject.toBytes(data);
@@ -46,22 +53,19 @@ public class UDPClient extends AsyncTask<Void, Void, Void> {
 
     }
 
-    UDPClient(Context context1) {
-        context = context1;
-        try {
-            dataToSend = SenderObject.toBytes(new SenderObject());
-            ipAddress = InetAddress.getByName(WearMainActivity.IPAddress);
-            port = 8080;
-            ERROR_FLAG = false;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Setter for data to be sent
+     * @param data data to be sent
+     */
     public void setDataToSend(byte[] data){
         dataToSend = data;
     }
 
+    /**
+     * Send the data to the server in background
+     * @param params Void
+     * @return null
+     */
     @Override
     protected Void doInBackground(Void... params) {
         try{
@@ -80,6 +84,10 @@ public class UDPClient extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
+    /**
+     * Post execute
+     * @param aVoid result from execution
+     */
     @Override
     protected void onPostExecute(Void aVoid) {
         if (ERROR_FLAG){

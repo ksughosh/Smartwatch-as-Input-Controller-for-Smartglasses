@@ -7,11 +7,17 @@ import android.view.Display;
 import android.view.ViewGroup;
 
 public class MainActivity extends Activity {
-
+    // Define the view that needs to be drawn
     static FittsInputInjector iView;
-    UDPServer server;
-    public static int SCREEN_X, SCREEN_Y;
 
+    // Define the server that will receive and inject
+    // values into the view
+    UDPServer server;
+
+    /**
+     * Main drawing callback
+     * @param savedInstanceState bundle instance for main UI.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,8 +27,6 @@ public class MainActivity extends Activity {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        SCREEN_X = size.x;
-        SCREEN_Y = size.y;
         server = new UDPServer(8080, iView, size);
         server.execute();
     }

@@ -7,9 +7,6 @@ import android.util.Log;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Created by zoskris on 06/10/15.
- */
 public class SensorFusion {
 
     // angular speeds from gyro
@@ -51,6 +48,9 @@ public class SensorFusion {
     public static final float FILTER_COEFFICIENT = 0.98f;
     private Timer fuseTimer = new Timer();
 
+    /**
+     * Constructor
+     */
     public SensorFusion() {
 
         gyroOrientation[0] = 0.0f;
@@ -75,22 +75,42 @@ public class SensorFusion {
 
     }
 
+    /**
+     * getter for Azimuth
+     * @return azimuth value
+     */
     public double getAzimuth() {
         return Math.toDegrees(selectedOrientation[0]);
     }
 
+    /**
+     * getter for pitch
+     * @return pitch value
+     */
     public double getPitch() {
         return Math.toDegrees(selectedOrientation[1]);
     }
 
+    /**
+     * getter for roll
+     * @return roll value
+     */
     public double getRoll() {
         return Math.toDegrees(selectedOrientation[2]);
     }
 
+    /**
+     * setter for setting magnetic values
+     * @param sensorValues magnetometer sensor values
+     */
     public void setMagnet(float[] sensorValues) {
         System.arraycopy(sensorValues, 0, magnet, 0, 3);
     }
 
+    /**
+     * setter for accelerometer values
+     * @param sensorValues accelerometer values
+     */
     public void setAccel(float[] sensorValues) {
         System.arraycopy(sensorValues, 0, accel, 0, 3);
 
@@ -200,6 +220,12 @@ public class SensorFusion {
         SensorManager.getOrientation(gyroMatrix, gyroOrientation);
     }
 
+    /**
+     * Determine the orientation from the gyroscope values
+     * @param o
+     * @return orientation in float array
+     */
+
     private float[] getRotationMatrixFromOrientation(float[] o) {
         float[] xM = new float[9];
         float[] yM = new float[9];
@@ -251,6 +277,12 @@ public class SensorFusion {
         return resultMatrix;
     }
 
+    /**
+     * Mehtod to multiply matrices
+     * @param A matrix A
+     * @param B matrix B
+     * @return Multiplicative result of A and B
+     */
     private float[] matrixMultiplication(float[] A, float[] B) {
         float[] result = new float[9];
 
@@ -269,6 +301,11 @@ public class SensorFusion {
         return result;
     }
 
+    /**
+     * Compute the orientation based on the fusion of sensors
+     * in different thread and send an interrupt when there
+     * is a change to be notified.
+     */
     class calculateFusedOrientationTask extends TimerTask {
         public void run() {
             float oneMinusCoeff = 1.0f - FILTER_COEFFICIENT;

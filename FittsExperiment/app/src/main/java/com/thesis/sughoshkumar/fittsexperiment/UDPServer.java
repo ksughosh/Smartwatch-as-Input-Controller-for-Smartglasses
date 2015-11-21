@@ -10,6 +10,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
 public class UDPServer extends AsyncTask<Void, Void, Void> {
+
+    // Defining the class parameters.
     private static final int WATCH_RES = 320;
     private static final int MAX_DATAGRAM_PACKET_SIZE = 128;
     private static int SCREEN_X;
@@ -23,6 +25,12 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     float x,y;
 
 
+    /**
+     * Constructor
+     * @param p port number
+     * @param childView view to whom the values are injected
+     * @param dimension dimension of the screen
+     */
     public UDPServer(int p, FittsInputInjector childView, Point dimension) {
         port = p;
         receiveData = new byte[MAX_DATAGRAM_PACKET_SIZE];
@@ -33,19 +41,37 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
         x = y = 0.1f;
     }
 
+    /**
+     * Mehthod to kill the server
+     */
     public static void kill() {
         keepRunning = false;
     }
 
+    /**
+     * Input to output pixel converter for CD = 1
+     * @param x value of X
+     * @return converted value of X
+     */
     private float pixelConverterX(float x) {
         return SCREEN_X / WATCH_RES * x;
     }
 
+    /**
+     * Input to output pixel converter for CD = 1
+     * @param y value of Y
+     * @return converted value of Y
+     */
     private float pixelConverterY(float y) {
         return SCREEN_Y / WATCH_RES * y;
     }
 
 
+    /**
+     * Background task - starting the server and listening.
+     * @param params Void
+     * @return null
+     */
     @SuppressWarnings("ResourceType")
     @Override
     protected Void doInBackground(Void... params) {
@@ -105,17 +131,11 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    private boolean hasStayedForTimeout(int timeout){
-        boolean val = false;
-        try {
-            Thread.sleep(timeout);
-            val = true;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return val;
-    }
-
+    /**
+     * Get the CD multiplier
+     * @param modality type of modality
+     * @return multiplier value
+     */
     private float getCD(int modality){
 
         /**

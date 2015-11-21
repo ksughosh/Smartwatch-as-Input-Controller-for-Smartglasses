@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Callback{
 
-
+    // Define the variables for the experiment.
     private static ArrayList<Coordinates> XYPair;
     private float INDEX_OF_DIFFICULTY = 3.5F;
     private ArrayList<Coordinates> XYPathBetweenTargets;
@@ -49,7 +49,7 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
     private float x,y;
 
 
-    //constants
+    //Define the constants
     private static final int ANGLE_OF_NEXT_TARGET = 36;
     private static final int DISTANCE_BETWEEN_TARGETS = 600;
     private static final int MOUSE_THRESHOLD = 2;
@@ -59,11 +59,16 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
     private static final float PERCENT = 0.4f;
 
 
-    // boolean switches
+    // Define boolean switches
     private boolean isFinished;
     private boolean isInit;
     private boolean isScrolling;
     private boolean isTapped;
+
+    /**
+     * constructor
+     * @param context application context
+     */
 
     FittsInputInjector(Context context){
         super (context);
@@ -74,6 +79,9 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         init();
     }
 
+    /**
+     * Initialization function
+     */
     private void init()
     {
         XYPair = new ArrayList<>();
@@ -111,28 +119,49 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             INDEX_OF_DIFFICULTY = ID;
         computeRadius();
     }
+
+    /**
+     * Compute the radius for each ID
+     */
     private void computeRadius()
     {
         radiusOfTargets = ((float)(600.0D / (Math.pow(2.0D, INDEX_OF_DIFFICULTY) - 1.0D)) / 2.0F);
     }
 
+    /**
+     * Set scrolling switch
+     * @param paramBoolean true or false for the scrolling switch.
+     */
     public void setIsScrolling(boolean paramBoolean)
     {
         isScrolling = paramBoolean;
     }
 
+    /**
+     * Set tapping switch
+     * @param paramBoolean boolean switch
+     */
     public void setIsTapped(boolean paramBoolean)
     {
         isTapped = paramBoolean;
+
+        // redraw
         mHandler.post(this.thread);
     }
+
+    /**
+     * Main drawing function
+     * @param canvas object to draw
+     */
 
     public void doDraw(Canvas canvas){
         int canvasWidth = getMeasuredWidth();
         int canvasHeight = getMeasuredHeight();
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-
+        // draw the fitts law
         drawFittsLaw(canvas);
+
+        // Check if the experiment block has come to an end
         if (targetCount >= NUMBER_OF_TARGETS){
             setID(INDEX_OF_DIFFICULTY + 0.5f);
             if (exCount > NUMBER_OF_TRIALS){
@@ -149,6 +178,7 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             }
         }
 
+        // Upon first Initialization
         if (!isInit){
             currentTarget = getOrder(new Coordinates());
             x = canvasWidth/2;
@@ -156,33 +186,46 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             isInit = true;
         }
 
+        // Keep drawing the target until not finished
         if (!isFinished){
             mPaint.setColor(Color.RED);
             canvas.drawCircle(currentTarget.getX(), currentTarget.getY(), radiusOfTargets, mPaint);
         }
 
+        // start recording the path after first target acquisition
         if (targetCount > 0){
             XYPathBetweenTargets.add(new Coordinates(x,y));
         }
 
+
+        // check and draw in blue if object is selected
         if (isSelect()!= null) {
             mPaint.setColor(Color.BLUE);
             canvas.drawCircle(isSelect().getX(), isSelect().getY(), radiusOfTargets, mPaint);
         }
 
+
+        // Handle what happens on tap
         if (isSelectedTarget(currentTarget) && isTapped && !isScrolling){
+            // vibration feedback
             vibrate.vibrate(vibratePattern);
             targetCount ++;
             prevTarget = currentTarget;
+
+            // get the next target
             currentTarget = getOrder(prevTarget);
+
+            // write the time between targets into the array
             if (timeStart != 0)
                 timeBetweenTargets.add((System.nanoTime() - timeStart)/1e6);
             timeStart = System.nanoTime();
+
+            // write the path information into the file
             if (targetCount > 0 && targetCount % 2 == 0)
                 writeArrayToFile();
         }
 
-
+        // check if offsets are redundant
         if (isRedundantOffset()) {
             offsetX = 0;
             offsetY = 0;
@@ -192,7 +235,7 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         y -= offsetY;
 
 
-
+        // draw the pointer / cursor
         if (getTopCoordinate(x) <= 0)
             x = SIZE_OF_POINTER;
         else if (getBottomCoordinate(x) >= canvasWidth)
@@ -203,6 +246,7 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         else if (getBottomCoordinate(y) >= canvasHeight)
             y = canvasHeight - SIZE_OF_POINTER;
 
+        // drawing the pointer.
         mPaint.setColor(Color.GREEN);
         canvas.drawCircle(x, y, SIZE_OF_POINTER, mPaint);
         mPaint.setColor(Color.RED);
@@ -215,6 +259,10 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         prevOffsetY = offsetY;
     }
 
+    /**
+     * Drawing the fitts law task
+     * @param canvas object to draw
+     */
     private void drawFittsLaw(Canvas canvas){
         int centerX = getMeasuredWidth() / 2;
         int centerY = getMeasuredHeight() / 2;
@@ -231,14 +279,29 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         }
     }
 
+    /**
+     * Boundary condition
+     * @param coordinate current position
+     * @return corrected position according to the screen dimensions
+     */
     private float getTopCoordinate(float coordinate) {
         return coordinate - (SIZE_OF_POINTER);
     }
 
+    /**
+     * Boundary condition
+     * @param coordinate current position
+     * @return corrected position according to the screen dimensions
+     */
     private float getBottomCoordinate(float coordinate) {
         return coordinate + (SIZE_OF_POINTER);
     }
 
+    /**
+     * Get the next target
+     * @param current target
+     * @return next target after the current
+     */
     private Coordinates getOrder(Coordinates current){
         Coordinates target = null;
         int targetAdd;
@@ -272,6 +335,10 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         return target;
     }
 
+    /**
+     * Check if the objects are selected
+     * @return coordinates of the selected object.
+     */
     private Coordinates isSelect() {
         Coordinates coordinate = null;
         float threshold = PERCENT * radiusOfTargets;
@@ -287,6 +354,11 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         return coordinate;
     }
 
+    /**
+     * Check intersection with the current target
+     * @param current target
+     * @return true if selected else false
+     */
     private boolean isSelectedTarget(Coordinates current){
         float threshold = PERCENT * radiusOfTargets;
         float dx = current.getX() - x;
@@ -295,6 +367,10 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         return (distance < (radiusOfTargets - threshold + SIZE_OF_POINTER));
     }
 
+    /**
+     * Check for repeating offset values
+     * @return true if repeating else false
+     */
     private boolean isRedundantOffset(){
         if (offsetX == prevOffsetX && offsetY == prevOffsetY)
             mouseCount++;
@@ -306,6 +382,11 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         }
     }
 
+    /**
+     * Control the pointer movement
+     * @param xPos x offset added to current x
+     * @param yPos y offset added to current y
+     */
     public void mouseMove(final float xPos, final float yPos) {
         offsetX = xPos;
         offsetY = yPos;
@@ -314,6 +395,9 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             UDPServer.kill();
     }
 
+    /**
+     * Mehtod to write the time values onto a file
+     */
     private void writeDataToFiles(){
         String filename = "TimeBetweenTargets_" + INDEX_OF_DIFFICULTY + "_";
         int fileCount = 1;
@@ -338,6 +422,10 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         }
     }
 
+
+    /**
+     * Method to write the path values into the file
+     */
     private void writeArrayToFile(){
         File folder = new File(baseDir, "XYPATH");
         if (!folder.exists())
@@ -361,6 +449,12 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         }
     }
 
+    /**
+     * Check if the pointer is in the threshold of fine pointing
+     * @param x input position in x
+     * @param y input position in y
+     * @return true to activate fine pointing else false
+     */
     public boolean isFinePointing(float x, float y){
         float threshold = 3;
         float dx = currentTarget.getX() - x;
@@ -369,6 +463,10 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         return (distance < radiusOfTargets * threshold + SIZE_OF_POINTER);
     }
 
+    /**
+     * Super class methods
+     * @param holder surface view holder
+     */
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         thread = new InjectViewThread(sh, this);
@@ -378,51 +476,96 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         thread.start();
     }
 
+    /**
+     * Super class methods
+     * @param holder surface holder
+     * @param format changed format
+     * @param width changed width
+     * @param height changed height
+     */
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         Log.d("Fitts", "Surface Changed");
     }
 
+    /**
+     * Super class method
+     * @param holder surface holder
+     */
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.d("Fitts", "Surface Destroyed");
     }
 
+    /**
+     * Holder class for maintaining the target data
+     */
     static class Coordinates{
         float xer;
         float yer;
         double angle;
 
+        /**
+         * Constructor
+         */
         Coordinates(){
             xer = 0f;
             yer = 0f;
             angle = 0d;
         }
 
+        /**
+         * Constructor
+         * @param x value x
+         * @param y value y
+         */
         Coordinates (float x, float y){
             xer = x;
             yer = y;
             angle = 0d;
         }
 
+        /**
+         * Constructor
+         * @param x value x
+         * @param y value y
+         * @param angle angular position of the target
+         */
         Coordinates (float x, float y, double angle){
             xer = x;
             yer = y;
             this.angle = angle;
         }
 
+        /**
+         * getter for x
+         * @return x value
+         */
         float getX(){
             return xer;
         }
 
+        /**
+         * getter for y
+         * @return y value
+         */
         float getY(){
             return yer;
         }
 
+        /**
+         * getter for angle
+         * @return angle value
+         */
         double getAngle(){
             return angle;
         }
 
+        /**
+         * String representation of the object
+         * @param angle show angle
+         * @return string value of the object.
+         */
         String toString(boolean angle){
             if (angle)
                 return "Coordinates X : " + xer + " Y : " + yer + " Angle : "  + this.angle + "\n";
@@ -432,6 +575,12 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
     }
 
 
+    /**
+     * Method included to make it compatible with the
+     * provided input.
+     * @param event generated event form system
+     * @return true if the event is consumed
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         x = event.getX();

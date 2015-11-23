@@ -318,9 +318,6 @@ public class SensorFusion {
             gyroMatrix = getRotationMatrixFromOrientation(fusedOrientation);
             System.arraycopy(fusedOrientation, 0, gyroOrientation, 0, 3);
 
-
-            // update sensor output in GUI
-            //mainHandler.post(updateOreintationDisplayTask);
         }
     }
 

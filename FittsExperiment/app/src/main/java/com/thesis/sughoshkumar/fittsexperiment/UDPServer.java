@@ -21,7 +21,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     private byte[] receiveData;
     private DatagramSocket datagramSocket;
     private FittsInputInjector iView;
-    private int switchModality = 1;
+    private int switchModality = 0;
     float x,y;
 
 
@@ -92,7 +92,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                     if (type == 1) {
                         iView.setIsScrolling(true);
                         iView.setIsTapped(false);
-                        iView.mouseMove(pixelConverterX(-y * getCD(modality)), pixelConverterY(-x * getCD(modality)));
+                        iView.mouseMove(-y * getCD(modality), x * getCD(modality));
                     }
                     else if (type == 2) {
                         iView.setIsTapped(true);
@@ -103,7 +103,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                     if (type == 1) {
                         iView.setIsScrolling(true);
                         iView.setIsTapped(false);
-                        iView.mouseMove((x * getCD(modality)), (y * getCD(modality)));
+                        iView.mouseMove(pixelConverterX(x) * getCD(modality), pixelConverterY(y) * getCD(modality));
                     }
                     else{
                         iView.setIsTapped(true);
@@ -114,7 +114,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                         if (type == 1) {
                             iView.setIsScrolling(true);
                             iView.setIsTapped(false);
-                            iView.mouseMove(pixelConverterX(x * getCD(modality)), pixelConverterY(y * getCD(modality)));
+                            iView.mouseMove(pixelConverterX(x) * getCD(modality), pixelConverterY(y) * getCD(modality));
                         } else if (type == 2) {
                             iView.setIsTapped(true);
                             iView.setIsScrolling(false);
@@ -152,9 +152,9 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                     return 0;
                 else
                     if (iView.isFinePointing(x,y))
-                        return -1;
+                        return 1;
                     else
-                        return -0.3f;
+                        return 0.3f;
             case 1:
                 if (modality == SenderObject.TOUCH_MODALITY)
                     return 0;

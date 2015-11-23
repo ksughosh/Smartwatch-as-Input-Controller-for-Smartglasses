@@ -103,13 +103,39 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         isFinished = false;
         timeStart = 0.0D;
         vibratePattern = 50L;
-        baseDir = new File(Environment.getExternalStorageDirectory(), "Fitts");
-        if (!this.baseDir.exists())
+        createDirectories();
+    }
+
+    /**
+     * Method to check, verify and create
+     *the directories
+     */
+    private void createDirectories(){
+        File foundation = new File(Environment.getExternalStorageDirectory(), "Fitts");
+        if (!foundation.exists())
+            //noinspection ResultOfMethodCallIgnored
+            foundation.mkdir();
+        int userId = UDPServer.getUserId();
+        boolean isCreated = false;
+        File baseFolder = new File(foundation, "User_"+String.valueOf(userId));
+        while (baseFolder.exists()){
+            File[] contents = baseFolder.listFiles();
+            if (contents.length > 3){
+                baseFolder = new File(foundation, "User_" + String.valueOf(++userId));
+            }
+            else {
+                isCreated = true;
+                break;
+            }
+        }
+        if (!isCreated)
+            //noinspection ResultOfMethodCallIgnored
+            baseFolder.mkdir();
+
+        baseDir = new File(baseFolder, UDPServer.modalityToString()+"Modality");
+        if (!baseDir.exists())
             //noinspection ResultOfMethodCallIgnored
             baseDir.mkdir();
-        else
-            //noinspection ResultOfMethodCallIgnored
-            baseDir.delete();
     }
 
     /**
@@ -117,9 +143,11 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
      * @param ID index of difficulty
      */
     private void setID(float ID){
-        exCount ++;
-        if (exCount > NUMBER_OF_TRIALS)
+        ++exCount ;
+        if (exCount > NUMBER_OF_TRIALS) {
             INDEX_OF_DIFFICULTY = 0;
+            isFinished = true;
+        }
         else
             INDEX_OF_DIFFICULTY = ID;
         computeRadius();
@@ -168,7 +196,6 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
 
         // Check if the experiment block has come to an end
         if (targetCount >= NUMBER_OF_TARGETS){
-            setID(INDEX_OF_DIFFICULTY + 0.5f);
             if (exCount > NUMBER_OF_TRIALS){
                 isFinished = true;
             }
@@ -181,6 +208,7 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
                 targetCount = 0;
                 isInit = false;
             }
+            setID(INDEX_OF_DIFFICULTY + 0.5f);
         }
 
         // Upon first Initialization
@@ -420,7 +448,7 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             outputStream = new FileOutputStream(mFile, true);
             OutputStreamWriter outputWriter = new OutputStreamWriter(outputStream);
             for (int i = 0 ; i < timeBetweenTargets.size(); i++)
-                outputWriter.write("Time Between " + i + " and " + i+1 + " : " + timeBetweenTargets.get(i) + ", " );
+                outputWriter.write("Time Between " + i + " and " + (i+1) + " : " + timeBetweenTargets.get(i) + ", " );
             outputWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -438,6 +466,14 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             folder.mkdir();
         String filename = "XYPath_" + INDEX_OF_DIFFICULTY;
         File mFile = new File(folder, filename + ".txt");
+        if (!mFile.exists()) {
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                mFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             FileOutputStream fileOut = new FileOutputStream(mFile, true);
             OutputStreamWriter outWrite = new OutputStreamWriter(fileOut);
@@ -448,10 +484,11 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             for (Coordinates c : XYPathBetweenTargets)
                 outWrite.write(c.toString(false) + "\n");
             outWrite.close();
-
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     /**

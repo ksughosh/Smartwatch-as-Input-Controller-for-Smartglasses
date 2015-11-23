@@ -21,7 +21,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     private byte[] receiveData;
     private DatagramSocket datagramSocket;
     private FittsInputInjector iView;
-    private int switchModality = 0;
+    private static int switchModality = 3;
     float x,y;
 
 
@@ -151,10 +151,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                 if (modality == SenderObject.GESTURE_MODALITY)
                     return 0;
                 else
-                    if (iView.isFinePointing(x,y))
-                        return 1;
-                    else
-                        return 0.3f;
+                    return 1;
             case 1:
                 if (modality == SenderObject.TOUCH_MODALITY)
                     return 0;
@@ -168,13 +165,33 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                     return 1;
                 } else {
                     if (iView.isFinePointing(x,y))
-                        return 0.3f;
+                        return 0.2f;
                     else
                         return 0.1f;
                 }
-
             default:
                 return 1;
         }
+    }
+
+    /**
+     * Get string representation of the experiment.
+     * @return string representation of the modality
+     */
+    public static String modalityToString(){
+        switch (switchModality){
+            case 0: return "Touch";
+            case 1: return "Gesture";
+            case 2: return "Symphony";
+            default: return "BaseController";
+        }
+    }
+
+    /**
+     * Get the user ID and check file redundancy
+     * @return user id
+     */
+    public static int getUserId(){
+        return 0;
     }
 }

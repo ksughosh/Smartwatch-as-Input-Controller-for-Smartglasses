@@ -183,19 +183,21 @@ public class WearMainActivity extends WearableActivity {
                                             new UDPClient(object.toBytes()).execute();
                                         } catch (IOException e) {
                                             e.printStackTrace();
-                                        
-                                    }
-                                }
 
+                                        }
+                                    }
+
+                                }
+                                prevAzimuth = azimuthValue;
+                                prevRoll = rollValue;
                             }
-                            prevAzimuth = azimuthValue;
-                            prevRoll = rollValue;
                         }
 
                         @Override
                         public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
                         }
+
                     };
                 }else{
                     try {

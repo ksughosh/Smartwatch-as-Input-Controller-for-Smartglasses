@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="Protocol">
+        <item name="TCP">TCP</item>
+        <item name="UDP">UDP</item>
+    </array>
+    <integer-array name="ProtocolValue">
+        <item name="TCP">1</item>
+        <item name="UDP">0</item>
+    </integer-array>
+</resources>

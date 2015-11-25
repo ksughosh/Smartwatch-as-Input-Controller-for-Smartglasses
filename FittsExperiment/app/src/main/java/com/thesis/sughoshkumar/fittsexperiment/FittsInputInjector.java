@@ -10,23 +10,29 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
 import android.util.Log;
+import android.util.Xml;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
+import org.xmlpull.v1.XmlSerializer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 
 
 public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Callback{
 
     // Define the variables for the experiment.
     private static ArrayList<Coordinates> XYPair;
-    private float INDEX_OF_DIFFICULTY = 3.5F;
-    private ArrayList<Coordinates> XYPathBetweenTargets;
+    private float INDEX_OF_DIFFICULTY;
+    private HashMap<Coordinates, Double> XYPathBetweenTargets;
     private File baseDir;
     private Coordinates currentTarget;
     private int exCount;
@@ -47,6 +53,14 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
     private Vibrator vibrate;
     private long vibratePattern;
     private float x,y;
+    private ArrayList<Float> IDs;
+    private File XYPathFile;
+    private float prevX, prevY;
+    private StringWriter writer;
+    private XmlSerializer xmlSerializer;
+    private double timeOfXYPath;
+    private int xmlCount;
+
 
 
     //Define the constants
@@ -64,6 +78,7 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
     private boolean isInit;
     private boolean isScrolling;
     private boolean isTapped;
+    private boolean hasStarted;
 
     /**
      * constructor
@@ -85,25 +100,58 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
     private void init()
     {
         XYPair = new ArrayList<>();
-        XYPathBetweenTargets = new ArrayList<>();
+        XYPathBetweenTargets = new HashMap<>();
         timeBetweenTargets = new ArrayList<>();
-        computeRadius();
         targetCount = 0;
+
         y = 0.0F;
         x = 0.0F;
+
         offsetY = 0.0F;
         offsetX = 0.0F;
+
         prevOffsetY = 0.0F;
         prevOffsetX = 0.0F;
+
         mouseCount = 0;
         exCount = 0;
+        xmlCount = 0;
+        timeOfXYPath = 0;
+
         isScrolling = true;
         isInit = false;
         isTapped = false;
         isFinished = false;
+        hasStarted = false;
+        hasStarted = false;
+
         timeStart = 0.0D;
         vibratePattern = 50L;
+
+        randomizeIDs();
+        INDEX_OF_DIFFICULTY = IDs.get(exCount);
+        computeRadius();
+        writer = new StringWriter();
+        xmlSerializer = Xml.newSerializer();
+        try {
+            xmlSerializer.setOutput(writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         createDirectories();
+    }
+
+    /**
+     * Method to generate random order for IDs
+     */
+    private void randomizeIDs(){
+        float i = 3.5f;
+        IDs = new ArrayList<>();
+        while (i <= 4.5f){
+            IDs.add(i);
+            i += 0.5f;
+        }
+        Collections.shuffle(IDs);
     }
 
     /**
@@ -136,21 +184,50 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         if (!baseDir.exists())
             //noinspection ResultOfMethodCallIgnored
             baseDir.mkdir();
+        createXMLFiles();
+    }
+
+    /**
+     * Method to create the xml files for the path data
+     * and initializing the XMLSerializer object.
+     */
+    private void createXMLFiles(){
+        // create the xml files
+        File mFolder = new File(baseDir, "XYPATH");
+        if (!mFolder.exists())
+            //noinspection ResultOfMethodCallIgnored
+            mFolder.mkdir();
+        String pathFile = "XYPath_"+INDEX_OF_DIFFICULTY + "_";
+        int fileCount = 0;
+        String xmlExt = ".xml";
+        XYPathFile = new File (mFolder, pathFile + fileCount + xmlExt);
+        while (XYPathFile.exists()){
+            ++fileCount;
+            XYPathFile = new File (mFolder, pathFile + fileCount + xmlExt);
+        }
+        try {
+            xmlSerializer.startDocument("UTF-8", true);
+            xmlSerializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+            xmlSerializer.startTag(null, "BLOCK");
+            xmlSerializer.comment("Beginning of the block");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * Setter for index of difficulty
-     * @param ID index of difficulty
      */
-    private void setID(float ID){
+    private void setID(){
         ++exCount ;
         if (exCount > NUMBER_OF_TRIALS) {
             INDEX_OF_DIFFICULTY = 0;
             isFinished = true;
         }
         else
-            INDEX_OF_DIFFICULTY = ID;
+            INDEX_OF_DIFFICULTY = IDs.get(exCount);
         computeRadius();
+        createXMLFiles();
     }
 
     /**
@@ -186,7 +263,6 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
      * Main drawing function
      * @param canvas object to draw
      */
-
     public void doDraw(Canvas canvas){
         int canvasWidth = getMeasuredWidth();
         int canvasHeight = getMeasuredHeight();
@@ -203,12 +279,13 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
                 writeDataToFiles();
                 XYPair = new ArrayList<>();
                 drawFittsLaw(canvas);
-                XYPathBetweenTargets = new ArrayList<>();
+                XYPathBetweenTargets = new HashMap<>();
                 timeBetweenTargets = new ArrayList<>();
                 targetCount = 0;
                 isInit = false;
             }
-            setID(INDEX_OF_DIFFICULTY + 0.5f);
+            writeFinishToPathFiles();
+            setID();
         }
 
         // Upon first Initialization
@@ -223,11 +300,18 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         if (!isFinished){
             mPaint.setColor(Color.RED);
             canvas.drawCircle(currentTarget.getX(), currentTarget.getY(), radiusOfTargets, mPaint);
+        } else{
+            writeArrayToFile();
         }
 
+        // has the experiment started ?
+        if (!hasStarted) {
+            timeOfXYPath = System.nanoTime();
+        }
         // start recording the path after first target acquisition
-        if (targetCount > 0){
-            XYPathBetweenTargets.add(new Coordinates(x,y));
+        if (targetCount > 0 && (x != prevX || y != prevY)){
+            XYPathBetweenTargets.put(new Coordinates(x, y), (System.nanoTime() - timeOfXYPath)/1e6);
+            timeOfXYPath = System.nanoTime();
         }
 
 
@@ -243,10 +327,14 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             // vibration feedback
             vibrate.vibrate(vibratePattern);
             targetCount ++;
+            if (targetCount > 0)
+                hasStarted = true;
+
+            //get previous target
             prevTarget = currentTarget;
 
             // get the next target
-            currentTarget = getOrder(prevTarget);
+            currentTarget = getOrder(currentTarget);
 
             // write the time between targets into the array
             if (timeStart != 0)
@@ -254,7 +342,7 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
             timeStart = System.nanoTime();
 
             // write the path information into the file
-            if (targetCount > 0 && targetCount % 2 == 0)
+            if (targetCount > 1)
                 writeArrayToFile();
         }
 
@@ -290,6 +378,8 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         canvas.drawLine(x, y - SIZE_OF_POINTER, x, y + SIZE_OF_POINTER, mPaint);
         prevOffsetX = offsetX;
         prevOffsetY = offsetY;
+        prevX = x;
+        prevY = y;
     }
 
     /**
@@ -429,7 +519,7 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
     }
 
     /**
-     * Mehtod to write the time values onto a file
+     * Method to write the time values onto a file
      */
     private void writeDataToFiles(){
         String filename = "TimeBetweenTargets_" + INDEX_OF_DIFFICULTY + "_";
@@ -455,40 +545,46 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
         }
     }
 
+    /**
+     * Method to finish writing the xml file.
+     */
+    private void writeFinishToPathFiles(){
+        try {
+            xmlSerializer.comment("Ending the block");
+            xmlSerializer.endTag(null, "BLOCK");
+            xmlSerializer.endDocument();
+            xmlSerializer.flush();
+            FileOutputStream fStream = new FileOutputStream(XYPathFile, true);
+            fStream.write(writer.toString().getBytes());
+            fStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     /**
      * Method to write the path values into the file
      */
-    private void writeArrayToFile(){
-        File folder = new File(baseDir, "XYPATH");
-        if (!folder.exists())
-            //noinspection ResultOfMethodCallIgnored
-            folder.mkdir();
-        String filename = "XYPath_" + INDEX_OF_DIFFICULTY;
-        File mFile = new File(folder, filename + ".txt");
-        if (!mFile.exists()) {
-            try {
-                //noinspection ResultOfMethodCallIgnored
-                mFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    private void writeArrayToFile() {
+        ++xmlCount;
         try {
-            FileOutputStream fileOut = new FileOutputStream(mFile, true);
-            OutputStreamWriter outWrite = new OutputStreamWriter(fileOut);
-            outWrite.write("\n----------------------------------------------");
-            outWrite.write("Source " + prevTarget.toString(true));
-            outWrite.write("Destination " + currentTarget.toString(true));
-            outWrite.write("----------------------------------------------\n");
-            for (Coordinates c : XYPathBetweenTargets)
-                outWrite.write(c.toString(false) + "\n");
-            outWrite.close();
-        }
-        catch (IOException e) {
+            xmlSerializer.startTag(null, "TargetBlock");
+            xmlSerializer.attribute(null, "Source", prevTarget.toString());
+            xmlSerializer.attribute(null, "Target", currentTarget.toString());
+            xmlSerializer.attribute(null, "Index", String.valueOf(xmlCount));
+            for (Map.Entry<Coordinates, Double> e : XYPathBetweenTargets.entrySet()) {
+                xmlSerializer.startTag(null, "PointerPosition");
+                xmlSerializer.attribute(null, "x", String.valueOf(e.getKey().getX()));
+                xmlSerializer.attribute(null, "y", String.valueOf(e.getKey().getY()));
+                xmlSerializer.attribute(null, "time", String.valueOf(e.getValue()));
+                xmlSerializer.endTag(null, "PointerPosition");
+            }
+            xmlSerializer.endTag(null, "TargetBlock");
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -605,14 +701,10 @@ public class FittsInputInjector extends SurfaceView implements SurfaceHolder.Cal
 
         /**
          * String representation of the object
-         * @param angle show angle
          * @return string value of the object.
          */
-        String toString(boolean angle){
-            if (angle)
-                return "Coordinates X : " + xer + " Y : " + yer + " Angle : "  + this.angle + "\n";
-            else
-                return "X : " + xer + " Y : " + yer + "\n";
+        public String toString(){
+            return " X : " + xer + " Y : " + yer + " Angle : "  + angle;
         }
     }
 

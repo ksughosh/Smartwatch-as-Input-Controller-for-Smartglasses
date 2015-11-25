@@ -21,7 +21,7 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
     private byte[] receiveData;
     private DatagramSocket datagramSocket;
     private FittsInputInjector iView;
-    private static int switchModality = 3;
+    private static int switchModality = 4;
     float x,y;
 
 
@@ -156,13 +156,13 @@ public class UDPServer extends AsyncTask<Void, Void, Void> {
                 if (modality == SenderObject.TOUCH_MODALITY)
                     return 0;
                 else
-                if (iView.isFinePointing(x,y))
-                    return 1;
+                if (!iView.isFinePointing(x,y))
+                    return 1f;
                 else
                     return 0.3f;
             case 2 :
                 if (modality == SenderObject.GESTURE_MODALITY) {
-                    return 1;
+                    return 1.3f;
                 } else {
                     if (iView.isFinePointing(x,y))
                         return 0.2f;

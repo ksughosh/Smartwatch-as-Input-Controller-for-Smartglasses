@@ -1,4 +1,4 @@
-# Synergy Between Touch and Gesture as Input for Head Worn Displays
+# Symphony of Touch and Gesture as Input for Head Worn Displays
 This thesis is an attempt to develop novel interaction techniques for smart see through head worn displays (ST-HWD) using a smartwatch as input controller. To realize this, 2 applications were developed. One application runs on the See through display and the other on the smartwatch.
 
 ## Designing Interaction
